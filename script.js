@@ -2,8 +2,12 @@ const searchInput = document.getElementById("search");
 const results = document.getElementById("results");
 const modeInputs = document.querySelectorAll("input[name='mode']");
 
+// ✅ Универсальная нормализация (поддержка таджикского языка)
 function normalize(text) {
-  return text.toLowerCase().replace(/[^a-zа-яё0-9\s]/gi, "");
+  return text
+    .toLocaleLowerCase()
+    .normalize("NFD")
+    .replace(/[^\p{L}0-9\s]/gu, "");
 }
 
 // Получаем первые буквы слов
@@ -38,7 +42,7 @@ function render(list) {
 }
 
 function search() {
-  const query = searchInput.value.toLowerCase().trim();
+  const query = normalize(searchInput.value.trim());
   const mode = getMode();
 
   if (!query) {
@@ -49,14 +53,15 @@ function search() {
   const filtered = data.filter(item => {
     if (mode === "normal") {
       return (
-        item.question.toLowerCase().includes(query) ||
-        item.answer.toLowerCase().includes(query)
+        normalize(item.question).includes(query) ||
+        normalize(item.answer).includes(query)
       );
     }
 
     if (mode === "letters") {
       const qLetters = getFirstLetters(item.question);
       const aLetters = getFirstLetters(item.answer);
+
       return (
         qLetters.startsWith(query) ||
         aLetters.startsWith(query)
