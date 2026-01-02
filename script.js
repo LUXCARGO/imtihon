@@ -27,6 +27,45 @@ let currentPage = 1;
 const pageSize = 10;
 let lastFiltered = [];
 
+let dataSource = 'data.js';
+let data2Loaded = false;
+let data2 = [];
+
+const switchDbBtn = document.getElementById('switch-db');
+if (switchDbBtn) {
+  switchDbBtn.addEventListener('click', async function() {
+    if (dataSource === 'data.js') {
+      if (!data2Loaded) {
+        // Загружаем data2.js динамически
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = 'data2.js';
+          script.onload = () => { data2Loaded = true; resolve(); };
+          script.onerror = reject;
+          document.body.appendChild(script);
+        });
+        // data2 должен быть определён в data2.js как window.data2
+        if (window.data2) data2 = window.data2;
+      }
+      window.data = data2;
+      dataSource = 'data2.js';
+      switchDbBtn.textContent = 'Поиск в основной базе';
+    } else {
+      // Возвращаемся к основной базе
+      if (window.data1) {
+        window.data = window.data1;
+      }
+      dataSource = 'data.js';
+      switchDbBtn.textContent = 'Поиск в другой базе';
+    }
+    currentPage = 1;
+    search();
+  });
+}
+
+// Сохраняем основную базу при старте
+if (!window.data1) window.data1 = data;
+
 function render(list) {
   results.innerHTML = "";
   lastFiltered = list;
