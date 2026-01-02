@@ -6,7 +6,7 @@ function normalize(text) {
   return text.toLowerCase().replace(/[^a-zа-яё0-9\s]/gi, "");
 }
 
-// 👉 получаем первые буквы слов
+// Получаем первые буквы слов
 function getFirstLetters(text) {
   return normalize(text)
     .split(/\s+/)
